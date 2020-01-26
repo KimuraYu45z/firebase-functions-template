@@ -1,7 +1,7 @@
 {
   "name": "firebase-functions-template",
   "description": "Firebase Functions template",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Kimura Yu",
   "bugs": {
     "url": "https://github.com/KimuraYu45z/firebase-functions-template/issues"
@@ -11,21 +11,18 @@
     "firebase-functions": "^3.3.0",
     "stripe": "^8.7.0"
   },
-  "files": [
-    "lib"
-  ],
   "homepage": "https://github.com/KimuraYu45z/firebase-functions-template#readme",
   "keywords": [
     "Firebase"
   ],
   "license": "ISC",
-  "main": "lib/index.js",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/KimuraYu45z/firebase-functions-template.git"
   },
   "scripts": {
-    "build": "tsc --build --clean && tsc"
-  },
-  "types": "lib/index.d.ts"
+    "build": "tsc --build --clean && tsc",
+    "publish": "node publish && cd dist && npm publish"
+  }
 }
