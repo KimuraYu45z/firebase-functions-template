@@ -1,60 +1,55 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import { Stripe } from "stripe";
+
 import { IPayment } from "../types/i-payment";
 import { path } from "./path";
+import { newStripe } from "./stripe";
 
-export function chargeFactory<Payment extends IPayment>(
-  paymentFactory: (iPayment: IPayment) => Payment
+export function chargeFactory<_Payment extends IPayment>(
+  paymentFactory: (iPayment: Omit<IPayment, "fee" | "net">) => _Payment
 ) {
-  return functions.https.onRequest(async (req, res) => {
-    try {
-      const amount: number = Number(req.body["amount"]);
-      const currency: string = req.body["currency"];
-      const description: string = req.body["description"];
-      const email: string = req.body["email"];
-      const token: string = req.body["token"];
+  return functions.https.onCall(
+    async (
+      data: {
+        amount: number;
+        currency: string;
+        description: string;
+        receipt_email: string;
+        source: string;
+        is_test?: boolean;
 
-      const isTest: boolean = Boolean(req.body["is_test"]);
-      const sk = isTest
-        ? functions.config()["stripe"]["sk_test"]
-        : functions.config()["stripe"]["sk_test"];
+        from_account_id: string;
+        to_account_id: string;
+      },
+      context
+    ) => {
+      try {
+        const stripe = newStripe(!!data.is_test);
 
-      const stripe = new Stripe(sk, {
-        apiVersion: "2019-12-03",
-        typescript: true
-      });
-      const charge = await stripe.charges.create({
-        amount: amount,
-        currency: currency,
-        description: description,
-        receipt_email: email,
-        source: token
-      });
+        await stripe.charges.create({
+          amount: data.amount,
+          currency: data.currency,
+          description: data.description,
+          receipt_email: data.receipt_email,
+          source: data.source
+        });
 
-      const fromAccountID: string = req.body["from_account_id"];
-      const toAccountID: string = req.body["to_account_id"];
-      const commission: number = Number(req.body["commission"]);
+        const payment = paymentFactory({
+          from_account_id: data.from_account_id,
+          to_account_id: data.to_account_id,
+          currency: data.currency,
+          total: data.amount,
+          created_at: admin.firestore.Timestamp.now()
+        });
 
-      const iPayment: IPayment = {
-        from_account_id: fromAccountID,
-        to_account_id: toAccountID,
-        currency: currency,
-        amount: amount,
-        commission: commission,
-        created_at: admin.firestore.Timestamp.now()
-      };
-      const payment = paymentFactory(iPayment);
-
-      await admin
-        .firestore()
-        .collection(path)
-        .add(payment);
-
-      res.status(200).send(charge);
-    } catch (e) {
-      console.error(e);
-      res.status(400).send(e.message);
+        await admin
+          .firestore()
+          .collection(path)
+          .add(payment);
+      } catch (e) {
+        console.error(e);
+        throw new functions.https.HttpsError("unknown", e.toString(), e);
+      }
     }
-  });
+  );
 }

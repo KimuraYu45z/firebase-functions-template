@@ -1,1 +1,3 @@
-export * from "./charge";
+import * as Payment from "./payments";
+
+export { Payment };
