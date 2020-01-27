@@ -6,7 +6,6 @@ export const create = functions.https.onCall(
   async (
     data: {
       account_id: string;
-      plan_id: string;
       email: string;
       source: string;
       is_test?: boolean;
