@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions";
-import { newStripe } from "../stripe";
+import { Payment } from "..";
 import { Account } from "../../accounts";
 
 export const create = functions.https.onCall(
@@ -26,7 +26,7 @@ export const create = functions.https.onCall(
         );
       }
 
-      const stripe = newStripe(!!data.is_test);
+      const stripe = Payment.newStripe(!!data.is_test);
 
       const customer = await stripe.customers.create({
         email: data.email,

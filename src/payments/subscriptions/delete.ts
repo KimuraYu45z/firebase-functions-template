@@ -1,8 +1,8 @@
 import * as functions from "firebase-functions";
-import { newStripe } from "../stripe";
+import { Payment } from "..";
 import { Account } from "../../accounts";
 
-export const _delete = functions.https.onCall(
+export const delete_ = functions.https.onCall(
   async (
     data: {
       account_id: string;
@@ -42,7 +42,7 @@ export const _delete = functions.https.onCall(
         );
       }
 
-      const stripe = newStripe(!!data.is_test);
+      const stripe = Payment.newStripe(!!data.is_test);
 
       await stripe.subscriptions.del(subscriptionID);
 

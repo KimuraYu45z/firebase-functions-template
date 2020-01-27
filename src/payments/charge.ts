@@ -2,8 +2,7 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
 import { IPayment } from "../types/i-payment";
-import { path } from "./path";
-import { newStripe } from "./stripe";
+import { Payment } from ".";
 
 export function chargeFactory<_Payment extends IPayment>(
   paymentFactory: (iPayment: Omit<IPayment, "fee" | "net">) => _Payment
@@ -24,7 +23,7 @@ export function chargeFactory<_Payment extends IPayment>(
       context
     ) => {
       try {
-        const stripe = newStripe(!!data.is_test);
+        const stripe = Payment.newStripe(!!data.is_test);
 
         await stripe.charges.create({
           amount: data.amount,
@@ -44,7 +43,7 @@ export function chargeFactory<_Payment extends IPayment>(
 
         await admin
           .firestore()
-          .collection(path)
+          .collection(Payment.path)
           .add(payment);
       } catch (e) {
         console.error(e);

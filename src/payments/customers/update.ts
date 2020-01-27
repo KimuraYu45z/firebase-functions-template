@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions";
-import { newStripe } from "../stripe";
+import { Payment } from "..";
 import { Account } from "../../accounts";
 import { Stripe } from "stripe";
 
@@ -26,7 +26,7 @@ export const update = functions.https.onCall(
         );
       }
 
-      const stripe = newStripe(!!data.is_test);
+      const stripe = Payment.newStripe(!!data.is_test);
 
       const customer = await Account.Customer.get(data.account_id);
 
