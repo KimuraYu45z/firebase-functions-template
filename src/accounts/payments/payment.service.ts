@@ -11,13 +11,18 @@ export namespace PaymentService {
   /**
    *
    */
-  export function chargeFactory<T>(callback: (data: ChargeData & T) => Promise<void>) {
+  export function chargeFactory<T>(
+    validate: (data: ChargeData & T) => Promise<void>,
+    callback: (data: ChargeData & T) => Promise<void>
+  ) {
     return functions.https.onCall(async (data: ChargeData & T, context) => {
       try {
         await AccountService.validateAuth(
           data.account_id,
           context.auth && context.auth.uid
         );
+
+        await validate(data);
 
         const stripe = PaymentService.newStripe(!!data.is_test);
 
