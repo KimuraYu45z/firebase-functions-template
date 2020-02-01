@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
-import { AccountService } from "../../accounts/account.service";
+import { AccountService } from "../../account.service";
 import { PaymentService } from "../payment.service";
-import { CustomerService as CustomerService_ } from "../../accounts/customers/customer.service";
+import { CustomerService as CustomerService_ } from "../../customers/customer.service";
 import { Stripe } from "stripe";
 
 export namespace CustomerService {
@@ -16,17 +16,10 @@ export namespace CustomerService {
       context
     ) => {
       try {
-        if (
-          await AccountService.validateAuth(
-            data.account_id,
-            context.auth && context.auth.uid
-          )
-        ) {
-          throw new functions.https.HttpsError(
-            "unauthenticated",
-            "unauthenticated"
-          );
-        }
+        await AccountService.validateAuth(
+          data.account_id,
+          context.auth && context.auth.uid
+        );
 
         const stripe = PaymentService.newStripe(!!data.is_test);
 
@@ -60,17 +53,10 @@ export namespace CustomerService {
       context
     ) => {
       try {
-        if (
-          await AccountService.validateAuth(
-            data.account_id,
-            context.auth && context.auth.uid
-          )
-        ) {
-          throw new functions.https.HttpsError(
-            "unauthenticated",
-            "unauthenticated"
-          );
-        }
+        await AccountService.validateAuth(
+          data.account_id,
+          context.auth && context.auth.uid
+        );
 
         const stripe = PaymentService.newStripe(!!data.is_test);
 

@@ -16,17 +16,10 @@ export namespace AccountService {
       context
     ) => {
       try {
-        if (
-          await AccountService.validateAuth(
-            data.account_id,
-            context.auth && context.auth.uid
-          )
-        ) {
-          throw new functions.https.HttpsError(
-            "unauthenticated",
-            "unauthenticated"
-          );
-        }
+        await AccountService.validateAuth(
+          data.account_id,
+          context.auth && context.auth.uid
+        );
 
         const account = await admin
           .firestore()
@@ -53,7 +46,10 @@ export namespace AccountService {
 
   export async function validateAuth(accountID: string, userID?: string) {
     if (!userID) {
-      return false;
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "unauthenticated"
+      );
     }
     const account = await admin
       .firestore()
@@ -62,6 +58,11 @@ export namespace AccountService {
       .get()
       .then(snapshot => snapshot.data() as IAccount);
 
-    return !!account.user_ids.find(_userID => _userID === userID);
+    if (!account.user_ids.find(_userID => _userID === userID)) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "user is not in account"
+      );
+    }
   }
 }

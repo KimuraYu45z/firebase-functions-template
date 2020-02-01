@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
-import { AccountService } from "../../accounts/account.service";
+import { AccountService } from "../../account.service";
 import { PaymentService } from "../payment.service";
-import { CustomerService } from "../../accounts/customers/customer.service";
+import { CustomerService } from "../../customers/customer.service";
 
 export namespace SubscriptionService {
   export const create = functions.https.onCall(
@@ -14,17 +14,10 @@ export namespace SubscriptionService {
       context
     ) => {
       try {
-        if (
-          await AccountService.validateAuth(
-            data.account_id,
-            context.auth && context.auth.uid
-          )
-        ) {
-          throw new functions.https.HttpsError(
-            "unauthenticated",
-            "unauthenticated"
-          );
-        }
+        await AccountService.validateAuth(
+          data.account_id,
+          context.auth && context.auth.uid
+        );
 
         const customer = await CustomerService.get(data.account_id);
 
@@ -61,17 +54,10 @@ export namespace SubscriptionService {
       context
     ) => {
       try {
-        if (
-          await AccountService.validateAuth(
-            data.account_id,
-            context.auth && context.auth.uid
-          )
-        ) {
-          throw new functions.https.HttpsError(
-            "unauthenticated",
-            "unauthenticated"
-          );
-        }
+        await AccountService.validateAuth(
+          data.account_id,
+          context.auth && context.auth.uid
+        );
 
         const customer = await CustomerService.get(data.account_id);
 

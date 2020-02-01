@@ -1,11 +1,11 @@
 import * as admin from "firebase-admin";
 
-export interface IPayment {
+export interface Transaction {
   from_account_id: string;
   to_account_id: string;
-  currency: string;
+  denom: string;
   total: number;
   fee: number;
-  net: number;
+  description: string;
   created_at: admin.firestore.Timestamp;
 }
