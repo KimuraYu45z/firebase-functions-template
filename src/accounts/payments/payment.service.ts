@@ -11,8 +11,8 @@ export namespace PaymentService {
   /**
    *
    */
-  export function chargeFactory(callback: (data: ChargeData) => Promise<void>) {
-    return functions.https.onCall(async (data: ChargeData, context) => {
+  export function chargeFactory<T>(callback: (data: ChargeData & T) => Promise<void>) {
+    return functions.https.onCall(async (data: ChargeData & T, context) => {
       try {
         await AccountService.validateAuth(
           data.account_id,
