@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
-import { AccountService } from "../../accounts";
-import { PaymentService } from "..";
-import { CustomerService } from "../../accounts/customers";
+import { AccountService } from "../../accounts/account.service";
+import { PaymentService } from "../payment.service";
+import { CustomerService } from "../../accounts/customers/customer.service";
 
 export namespace SubscriptionService {
   export const create = functions.https.onCall(

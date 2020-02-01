@@ -1,8 +1,8 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 import { Stripe } from "stripe";
-import { CustomerService as CustomerService_ } from "./customers";
-import { SubscriptionService as SubscriptionService_ } from "./subscriptions";
+import { CustomerService as CustomerService_ } from "./customers/customer.service";
+import { SubscriptionService as SubscriptionService_ } from "./subscriptions/subscription.service";
 import { IPayment } from "./i-payment";
 
 export namespace PaymentService {

@@ -1,18 +1,18 @@
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
-import { FirestoreTriggerHandler } from "../types/firestore-trigger-handler";
+import { FirestoreTriggerHandler } from "./firestore-trigger-handler";
 
 export namespace TriggerService {
   export const path = "triggers";
 
-  export function handleHandlers(
+  export async function handleHandlers(
     snapshot: FirebaseFirestore.DocumentSnapshot,
     context: functions.EventContext,
     handlers: FirestoreTriggerHandler[]
   ) {
     for (const handler of handlers) {
       try {
-        handler(snapshot, context);
+        await handler(snapshot, context);
       } catch (e) {
         console.error(e);
       }
