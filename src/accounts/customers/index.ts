@@ -1,25 +1,26 @@
 import * as admin from "firebase-admin";
-import { Account } from "..";
-import { Customer as _Customer } from "../../types/customer";
-export const path = "customers";
+import { AccountService } from "..";
+import { Customer } from "./customer";
 
-export namespace Customer {
+export namespace CustomerService {
+  export const path = "customers";
+
   function ref(accountID: string) {
     return admin
       .firestore()
-      .collection(Account.path)
+      .collection(AccountService.path)
       .doc(accountID)
       .collection(path)
-      .doc("customer");
+      .doc("_");
   }
 
   export async function get(accountID: string) {
     return await ref(accountID)
       .get()
-      .then(snapshot => snapshot.data() as _Customer | undefined);
+      .then(snapshot => snapshot.data() as Customer | undefined);
   }
 
-  export async function set(accountID: string, data: _Customer) {
+  export async function set(accountID: string, data: Customer) {
     await ref(accountID).set(data);
   }
 }

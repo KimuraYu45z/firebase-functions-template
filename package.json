@@ -1,12 +1,14 @@
 {
   "name": "firebase-functions-template",
   "description": "Firebase Functions template",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "Kimura Yu",
   "bugs": {
     "url": "https://github.com/KimuraYu45z/firebase-functions-template/issues"
   },
-  "devDependencies": {
+  "dependencies": {
+    "@types/algoliasearch": "^3.34.10",
+    "algoliasearch": "^3.35.1",
     "firebase-admin": "^8.9.2",
     "firebase-functions": "^3.3.0",
     "stripe": "^8.7.0"
