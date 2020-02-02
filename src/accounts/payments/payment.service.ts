@@ -12,48 +12,50 @@ export namespace PaymentService {
    *
    */
   export function chargeFactory<T>(
-    validate: (data: ChargeData & T) => Promise<void>,
-    callback: (data: ChargeData & T) => Promise<void>
+    validate: (data: T & { charge_data: ChargeData }) => Promise<void>,
+    callback: (data: T & { charge_data: ChargeData }) => Promise<void>
   ) {
-    return functions.https.onCall(async (data: ChargeData & T, context) => {
-      try {
-        await AccountService.validateAuth(
-          data.account_id,
-          context.auth && context.auth.uid
-        );
+    return functions.https.onCall(
+      async (data: T & { charge_data: ChargeData }, context) => {
+        try {
+          await AccountService.validateAuth(
+            data.charge_data.account_id,
+            context.auth && context.auth.uid
+          );
 
-        await validate(data);
+          await validate(data);
 
-        const stripe = PaymentService.newStripe(!!data.is_test);
+          const stripe = PaymentService.newStripe(!!data.charge_data.is_test);
 
-        await stripe.charges.create({
-          amount: data.amount,
-          currency: data.currency,
-          description: data.description,
-          receipt_email: data.receipt_email,
-          source: data.source
-        });
+          await stripe.charges.create({
+            amount: data.charge_data.amount,
+            currency: data.charge_data.currency,
+            description: data.charge_data.description,
+            receipt_email: data.charge_data.receipt_email,
+            source: data.charge_data.source
+          });
 
-        const payment: Payment = {
-          currency: data.currency,
-          amount: data.amount,
-          description: data.description,
-          created_at: admin.firestore.Timestamp.now()
-        };
+          const payment: Payment = {
+            currency: data.charge_data.currency,
+            amount: data.charge_data.amount,
+            description: data.charge_data.description,
+            created_at: admin.firestore.Timestamp.now()
+          };
 
-        await admin
-          .firestore()
-          .collection(AccountService.path)
-          .doc(data.account_id)
-          .collection(PaymentService.path)
-          .add(payment);
+          await admin
+            .firestore()
+            .collection(AccountService.path)
+            .doc(data.charge_data.account_id)
+            .collection(PaymentService.path)
+            .add(payment);
 
-        await callback(data);
-      } catch (e) {
-        console.error(e);
-        throw new functions.https.HttpsError("unknown", e.toString(), e);
+          await callback(data);
+        } catch (e) {
+          console.error(e);
+          throw new functions.https.HttpsError("unknown", e.toString(), e);
+        }
       }
-    });
+    );
   }
 
   export function newStripe(isTest: boolean) {
