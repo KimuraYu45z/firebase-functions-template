@@ -1,2 +1,4 @@
-export * from "./customer.service";
+import * as customer from "./module";
+
+export { customer };
 export * from "./customer";

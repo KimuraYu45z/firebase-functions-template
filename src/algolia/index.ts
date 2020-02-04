@@ -1,1 +1,3 @@
-export * from "./algolia.service";
+import * as algolia from "./module";
+
+export { algolia };

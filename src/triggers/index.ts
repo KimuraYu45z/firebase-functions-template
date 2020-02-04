@@ -1,2 +1,4 @@
 export * from "./firestore-trigger-handler";
-export * from "./trigger.service";
+import * as trigger from "./module";
+
+export { trigger };

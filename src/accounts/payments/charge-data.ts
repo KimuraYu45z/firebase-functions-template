@@ -1,4 +1,4 @@
-export interface ChargeData {
+export type ChargeData = {
   account_id: string;
   amount: number;
   currency: string;
@@ -6,4 +6,4 @@ export interface ChargeData {
   receipt_email: string;
   source: string;
   is_test?: boolean;
-}
+};

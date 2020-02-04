@@ -1,1 +1,3 @@
-export * from "./subscription.service";
+import * as subscription from "./module";
+
+export { subscription };

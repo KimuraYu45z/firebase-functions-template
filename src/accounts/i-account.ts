@@ -1,6 +1,6 @@
 import * as admin from "firebase-admin";
 
-export interface IAccount {
+export type IAccount = {
   user_ids: string[];
   admin_user_ids: string[];
   image_url: string;

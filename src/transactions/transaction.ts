@@ -1,6 +1,6 @@
 import * as admin from "firebase-admin";
 
-export interface Transaction {
+export type Transaction = {
   from_account_id: string;
   to_account_id: string;
   denom: string;
@@ -8,4 +8,4 @@ export interface Transaction {
   fee: number;
   description: string;
   created_at: admin.firestore.Timestamp;
-}
+};
