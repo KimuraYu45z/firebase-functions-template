@@ -1,6 +1,6 @@
 name: Node.js CI
 
-on: [push]
+on: [pull_request]
 
 jobs:
   build:
@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [8.x, 10.x, 12.x]
+        node-version: [12.x]
 
     steps:
     - uses: actions/checkout@v2
@@ -18,7 +18,16 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install
+    - name: Cache
+      uses: actions/cache@v1.1.2
+      with:
+        # A directory to store and save the cache
+        path: ./node_modules
+        # An explicit key for restoring and saving the cache
+        key: node_modules
+        # An ordered list of keys to use for restoring the cache if no cache hit occurred for key
+        restore-keys: node_modules
     - run: npm run build --if-present
-    - run: npm test
+    - run: npm run test -- --watch=false --browsers=ChromeHeadless
       env:
         CI: true
