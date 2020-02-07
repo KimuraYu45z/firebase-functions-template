@@ -1,6 +1,5 @@
 import * as functions from "firebase-functions";
-import algoliasearch_ from "algoliasearch";
-const algoliasearch = algoliasearch_;
+import algoliasearch from "algoliasearch";
 
 export async function set(indexName: string, id: string, data: any) {
   const obj = {
