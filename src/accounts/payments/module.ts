@@ -5,12 +5,7 @@ import { Payment } from "./payment";
 import { account } from "..";
 import { ChargeData } from "./charge-data";
 
-import { customer } from "./customers";
-import { subscription } from "./subscriptions";
 import { config } from "../../config";
-
-export { customer };
-export { subscription };
 
 export const collectionPath = "payments";
 export const documentPath = "payment_id";
@@ -32,7 +27,7 @@ export function chargeFactory<T>(
 
         await validate(data);
 
-        const stripe = account.payment.newStripe(!!data.charge_data.is_test);
+        const stripe = newStripe(!!data.charge_data.is_test);
 
         await stripe.charges.create({
           amount: data.charge_data.amount,

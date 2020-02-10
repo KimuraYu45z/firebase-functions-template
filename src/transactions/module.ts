@@ -2,6 +2,7 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import { Transaction } from "./transaction";
 import { account } from "../accounts";
+import { balance as account_balance } from "../accounts/balances";
 
 export const collectionPath = "transactions";
 export const documentPath = "transaction_id";
@@ -13,7 +14,7 @@ export const onCreate = functions.firestore
 
     await admin.firestore().runTransaction(async (t) => {
       if (transaction.from_account_id) {
-        t.update(account.balance.ref(transaction.from_account_id), {
+        t.update(account_balance.ref(transaction.from_account_id), {
           [`${transaction.denom}.amount`]: admin.firestore.FieldValue.increment(
             -transaction.total,
           ),
@@ -22,7 +23,7 @@ export const onCreate = functions.firestore
 
       if (transaction.to_account_id) {
         const net = transaction.total - transaction.fee;
-        t.update(account.balance.ref(transaction.from_account_id), {
+        t.update(account_balance.ref(transaction.from_account_id), {
           [`${transaction.denom}.amount`]: admin.firestore.FieldValue.increment(
             net,
           ),

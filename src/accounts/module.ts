@@ -3,10 +3,6 @@ import * as admin from "firebase-admin";
 import { IAccount } from "./i-account";
 import { account } from ".";
 
-export * from "./balances";
-export * from "./customers";
-export * from "./payments";
-
 export const collectionPath = "accounts";
 export const documentPath = "account_id";
 
