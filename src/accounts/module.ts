@@ -2,38 +2,40 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import { IAccount } from "./i-account";
 import { account } from ".";
-import { balance } from "./balances";
-import { customer } from "./customers";
-import { payment } from "./payments";
 
-export { balance };
-export { customer };
-export { payment };
+export * from "./balances";
+export * from "./customers";
+export * from "./payments";
 
-export const path = "accounts";
+export const collectionPath = "accounts";
+export const documentPath = "account_id";
+
+export async function get(accountID: string) {
+  return await admin
+    .firestore()
+    .collection(collectionPath)
+    .doc(accountID)
+    .get()
+    .then((snapshot) => snapshot.data() as IAccount);
+}
 
 /**
- * `accounts_get_users`
+ * `account_get_users`
  */
 export const getUsers = functions.https.onCall(
   async (
     data: {
       account_id: string;
     },
-    context
+    context,
   ) => {
     try {
       await account.validateAuth(
         data.account_id,
-        context.auth && context.auth.uid
+        context.auth && context.auth.uid,
       );
 
-      const account_ = await admin
-        .firestore()
-        .collection("accounts")
-        .doc(data.account_id)
-        .get()
-        .then(snapshot => snapshot.data() as IAccount);
+      const account_ = await get(data.account_id);
 
       const users: admin.auth.UserRecord[] = [];
       for (const userID of account_.user_ids) {
@@ -48,24 +50,19 @@ export const getUsers = functions.https.onCall(
       console.error(e);
       throw new functions.https.HttpsError("unknown", e.toString(), e);
     }
-  }
+  },
 );
 
 export async function validateAuth(accountID: string, userID?: string) {
   if (!userID) {
     throw new functions.https.HttpsError("unauthenticated", "unauthenticated");
   }
-  const account = await admin
-    .firestore()
-    .collection("accounts")
-    .doc(accountID)
-    .get()
-    .then(snapshot => snapshot.data() as IAccount);
+  const account = await get(accountID);
 
-  if (!account.user_ids.find(_userID => _userID === userID)) {
+  if (!account.user_ids.find((_userID) => _userID === userID)) {
     throw new functions.https.HttpsError(
       "unauthenticated",
-      "user is not in account"
+      "user is not in account",
     );
   }
 }

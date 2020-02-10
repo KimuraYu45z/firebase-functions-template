@@ -2,21 +2,22 @@ import * as admin from "firebase-admin";
 import { account } from "..";
 import { Customer } from "./customer";
 
-export const path = "customers";
+export const collectionPath = "customers";
+export const documentID = "customer";
 
 function ref(accountID: string) {
   return admin
     .firestore()
-    .collection(account.path)
+    .collection(account.collectionPath)
     .doc(accountID)
-    .collection(path)
-    .doc("_");
+    .collection(collectionPath)
+    .doc(documentID);
 }
 
 export async function get(accountID: string) {
   return await ref(accountID)
     .get()
-    .then(snapshot => snapshot.data() as Customer | undefined);
+    .then((snapshot) => snapshot.data() as Customer | undefined);
 }
 
 export async function set(accountID: string, data: Customer) {

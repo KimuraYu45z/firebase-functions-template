@@ -7,25 +7,27 @@ import { ChargeData } from "./charge-data";
 
 import { customer } from "./customers";
 import { subscription } from "./subscriptions";
+import { config } from "../../config";
 
 export { customer };
 export { subscription };
 
-export const path = "payments";
+export const collectionPath = "payments";
+export const documentPath = "payment_id";
 
 /**
  *
  */
 export function chargeFactory<T>(
   validate: (data: T & { charge_data: ChargeData }) => Promise<void>,
-  callback: (data: T & { charge_data: ChargeData }) => Promise<void>
+  callback: (data: T & { charge_data: ChargeData }) => Promise<void>,
 ) {
   return functions.https.onCall(
     async (data: T & { charge_data: ChargeData }, context) => {
       try {
         await account.validateAuth(
           data.charge_data.account_id,
-          context.auth && context.auth.uid
+          context.auth && context.auth.uid,
         );
 
         await validate(data);
@@ -37,21 +39,21 @@ export function chargeFactory<T>(
           currency: data.charge_data.currency,
           description: data.charge_data.description,
           receipt_email: data.charge_data.receipt_email,
-          source: data.charge_data.source
+          source: data.charge_data.source,
         });
 
         const payment: Payment = {
           currency: data.charge_data.currency,
           amount: data.charge_data.amount,
           description: data.charge_data.description,
-          created_at: admin.firestore.Timestamp.now()
+          created_at: admin.firestore.Timestamp.now(),
         };
 
         await admin
           .firestore()
-          .collection(account.path)
+          .collection(account.collectionPath)
           .doc(data.charge_data.account_id)
-          .collection(path)
+          .collection(collectionPath)
           .add(payment);
 
         await callback(data);
@@ -59,18 +61,16 @@ export function chargeFactory<T>(
         console.error(e);
         throw new functions.https.HttpsError("unknown", e.toString(), e);
       }
-    }
+    },
   );
 }
 
 export function newStripe(isTest: boolean) {
-  const sk = isTest
-    ? functions.config()["stripe"]["sk_test"]
-    : functions.config()["stripe"]["sk_live"];
+  const sk = isTest ? config.stripe.sk_test : config.stripe.sk_live;
 
   const stripe = new Stripe(sk, {
     apiVersion: "2019-12-03",
-    typescript: true
+    typescript: true,
   });
 
   return stripe;

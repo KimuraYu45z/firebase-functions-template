@@ -1,14 +1,14 @@
-import * as functions from "firebase-functions";
 import algoliasearch from "algoliasearch";
+import { config } from "../config";
 
 export async function set(indexName: string, id: string, data: any) {
   const obj = {
     objectID: id,
-    ...data
+    ...data,
   };
   const client = algoliasearch(
-    functions.config()["algolia"]["app_id"],
-    functions.config()["algolia"]["admin_api_key"]
+    config.algolia.app_id,
+    config.algolia.admin_api_key,
   );
   const index = client.initIndex(indexName);
   await index.saveObject(obj);
@@ -16,8 +16,8 @@ export async function set(indexName: string, id: string, data: any) {
 
 export async function delete_(indexName: string, id: string) {
   const client = algoliasearch(
-    functions.config()["algolia"]["app_id"],
-    functions.config()["algolia"]["admin_api_key"]
+    config.algolia.app_id,
+    config.algolia.admin_api_key,
   );
   const index = client.initIndex(indexName);
   await index.deleteObject(id);
