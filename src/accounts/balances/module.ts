@@ -1,5 +1,5 @@
-import * as admin from "firebase-admin";
 import { account } from "..";
+import { admin } from "../../internal";
 
 export const collectionPath = "balances";
 export const documentID = "balance";

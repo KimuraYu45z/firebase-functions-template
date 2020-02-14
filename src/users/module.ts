@@ -1,5 +1,5 @@
-import * as admin from "firebase-admin";
 import { IUser } from "./i-user";
+import { admin } from "../internal";
 
 export const collectionPath = "users";
 export const documentPath = "user_id";

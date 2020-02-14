@@ -1,14 +1,10 @@
-import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
+import * as functions_ from "firebase-functions";
+import * as admin_ from "firebase-admin";
+import * as internal from "./internal";
 
 export * from "./triggers";
 
-export function initialize(
-  initializeApp: (options: {
-    credential: admin.credential.Credential;
-    databaseURL: string;
-  }) => admin.app.App,
-) {
+export function initialize(functions: typeof functions_, admin: typeof admin_) {
   const options = {
     credential: admin.credential.cert(
       JSON.parse(
@@ -20,6 +16,7 @@ export function initialize(
     ),
     databaseURL: functions.config().admin.database_url,
   };
-  initializeApp(options);
   admin.initializeApp(options);
+
+  internal.initialize(functions, admin);
 }

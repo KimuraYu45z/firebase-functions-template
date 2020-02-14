@@ -1,4 +1,3 @@
-import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 import { Stripe } from "stripe";
 import { Payment } from "./payment";
@@ -6,6 +5,7 @@ import { account } from "..";
 import { ChargeData } from "./charge-data";
 
 import { config } from "../../config";
+import { admin } from "../../internal";
 
 export const collectionPath = "payments";
 export const documentPath = "payment_id";

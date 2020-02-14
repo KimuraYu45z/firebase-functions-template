@@ -1,8 +1,7 @@
 import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
 import { Transaction } from "./transaction";
-import { account } from "../accounts";
 import { balance as account_balance } from "../accounts/balances";
+import { admin } from "../internal";
 
 export const collectionPath = "transactions";
 export const documentPath = "transaction_id";

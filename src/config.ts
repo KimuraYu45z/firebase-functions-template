@@ -1,4 +1,5 @@
-import * as functions from "firebase-functions";
+import { functions } from "./internal";
+
 export const config = functions.config() as {
   algolia: {
     app_id: string;

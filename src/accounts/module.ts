@@ -1,8 +1,9 @@
 import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
 import { IAccount } from "./i-account";
 import { account } from ".";
 import { user } from "../users";
+import { admin } from "../internal";
+import { auth } from "firebase-admin";
 
 export const collectionPath = "accounts";
 export const documentPath = "account_id";
@@ -79,7 +80,7 @@ export const getUsers = functions.https.onCall(
 
       const account_ = await get(data.account_id);
 
-      const users: admin.auth.UserRecord[] = [];
+      const users: auth.UserRecord[] = [];
       for (const userID of account_.user_ids) {
         users.push(await admin.auth().getUser(userID));
       }
