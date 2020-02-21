@@ -14,44 +14,49 @@ export const documentPath = "payment_id";
  *
  */
 export function chargeFactory<T>(
-  validate: (data: T & { charge_data: ChargeData }) => Promise<void>,
+  createChargeData: (
+    data: T & { charge_data: { source: string; is_test?: boolean } },
+  ) => Promise<ChargeData>,
   callback: (data: T & { charge_data: ChargeData }) => Promise<void>,
 ) {
   return functions.https.onCall(
-    async (data: T & { charge_data: ChargeData }, context) => {
+    async (
+      data: T & { charge_data: { source: string; is_test?: boolean } },
+      context,
+    ) => {
       try {
+        const chargeData = await createChargeData(data);
+
         await account.validateAuth(
-          data.charge_data.account_id,
+          chargeData.account_id,
           context.auth && context.auth.uid,
         );
-
-        await validate(data);
 
         const stripe = newStripe(!!data.charge_data.is_test);
 
         await stripe.charges.create({
-          amount: data.charge_data.amount,
-          currency: data.charge_data.currency,
-          description: data.charge_data.description,
-          receipt_email: data.charge_data.receipt_email,
-          source: data.charge_data.source,
+          amount: chargeData.amount,
+          currency: chargeData.currency,
+          description: chargeData.description,
+          receipt_email: chargeData.receipt_email,
+          source: chargeData.source,
         });
 
         const payment: Payment = {
-          currency: data.charge_data.currency,
-          amount: data.charge_data.amount,
-          description: data.charge_data.description,
+          currency: chargeData.currency,
+          amount: chargeData.amount,
+          description: chargeData.description,
           created_at: admin.firestore.Timestamp.now(),
         };
 
         await admin
           .firestore()
           .collection(account.collectionPath)
-          .doc(data.charge_data.account_id)
+          .doc(chargeData.account_id)
           .collection(collectionPath)
           .add(payment);
 
-        await callback(data);
+        await callback({ ...data, charge_data: chargeData });
       } catch (e) {
         console.error(e);
         throw new functions.https.HttpsError("unknown", e.toString(), e);
