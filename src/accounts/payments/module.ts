@@ -6,6 +6,7 @@ import { ChargeData } from "./charge-data";
 
 import { config } from "../../config";
 import { admin } from "../../internal";
+import { private_ as account_private } from "../privates";
 
 export const collectionPath = "payments";
 export const documentPath = "payment_id";
@@ -32,13 +33,15 @@ export function chargeFactory<T>(
           context.auth && context.auth.uid,
         );
 
+        const private_ = await account_private.get(chargeData.account_id);
+
         const stripe = newStripe(!!data.charge_data.is_test);
 
         await stripe.charges.create({
           amount: chargeData.amount,
           currency: chargeData.currency,
           description: chargeData.description,
-          receipt_email: chargeData.receipt_email,
+          receipt_email: private_.email,
           source: chargeData.source,
         });
 

@@ -1,7 +1,7 @@
 {
   "name": "firebase-functions-template",
   "description": "Firebase Functions template",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": "Kimura Yu",
   "bugs": {
     "url": "https://github.com/KimuraYu45z/firebase-functions-template/issues"
@@ -25,5 +25,8 @@
   "scripts": {
     "build": "tsc --build --clean && tsc",
     "publish": "node bundle && cd dist && npm publish"
+  },
+  "devDependencies": {
+    "typescript": "^3.8.2"
   }
 }
