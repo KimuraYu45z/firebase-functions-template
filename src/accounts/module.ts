@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions";
-import { IAccount } from "./i-account";
+import { IAccount } from "./i-account.model";
 import { account } from ".";
 import { user } from "../users";
 import { admin } from "../internal";

@@ -1,7 +1,7 @@
 {
   "name": "firebase-functions-template",
   "description": "Firebase Functions template",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "author": "Kimura Yu",
   "bugs": {
     "url": "https://github.com/KimuraYu45z/firebase-functions-template/issues"

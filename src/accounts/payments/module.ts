@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 import { Stripe } from "stripe";
-import { Payment } from "./payment";
+import { Payment } from "./payment.model";
 import { account } from "..";
 import { ChargeData } from "./charge-data";
 

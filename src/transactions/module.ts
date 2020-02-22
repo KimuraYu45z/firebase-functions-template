@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions";
-import { Transaction } from "./transaction";
+import { Transaction } from "./transaction.model";
 import { balance as account_balance } from "../accounts/balances";
 import { admin } from "../internal";
 
@@ -33,3 +33,10 @@ export const onCreate = functions.firestore
       }
     });
   });
+
+export async function create(transaction: Transaction) {
+  await admin
+    .firestore()
+    .collection(collectionPath)
+    .add(transaction);
+}

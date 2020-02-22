@@ -1,3 +1,3 @@
 import * as transaction from "./module";
 export { transaction };
-export * from "./transaction";
+export * from "./transaction.model";

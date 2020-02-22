@@ -1,5 +1,5 @@
 import { account } from "..";
-import { Customer } from "./customer";
+import { Customer } from "./customer.model";
 import { admin } from "../../internal";
 
 export const collectionPath = "customers";

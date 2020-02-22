@@ -1,4 +1,4 @@
-import { IUser } from "./i-user";
+import { IUser } from "./i-user.model";
 import { admin } from "../internal";
 
 export const collectionPath = "users";
