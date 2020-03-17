@@ -6,6 +6,8 @@ import { config } from "../config";
 
 export async function export_() {
   const projectID = config.service_account.project_id;
+  const date = new Date();
+  const name = `${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}`;
 
   const firestore = google.firestore({
     version: "v1",
@@ -23,11 +25,10 @@ export async function export_() {
   await firestore.projects.databases.exportDocuments({
     name: `projects/${projectID}/databases/(default)`,
     requestBody: {
-      outputUriPrefix: `gs://${projectID}.appspot.com/firestore_backup`,
+      outputUriPrefix: `gs://${projectID}.appspot.com/firestore_backup/${name}`,
     },
   });
 }
-
 
 export const import_ = functions.https.onRequest(async (req, res) => {
   const inputURL = req.query["input_url"];
