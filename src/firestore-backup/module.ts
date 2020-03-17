@@ -7,7 +7,9 @@ import { config } from "../config";
 export async function export_() {
   const projectID = config.service_account.project_id;
   const date = new Date();
-  const name = `${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}`;
+  const monthString = ("00" + (date.getMonth() + 1)).slice(-2);
+  const dateString = ("00" + date.getDate()).slice(-2);
+  const name = `${date.getFullYear()}${monthString}${dateString}`;
 
   const firestore = google.firestore({
     version: "v1",
