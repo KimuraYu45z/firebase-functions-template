@@ -4,10 +4,10 @@ import { google } from "googleapis";
 import { JWT } from "google-auth-library";
 import { config } from "../config";
 
-export async function export_(namespaceIDs?: string[]) {
+export async function export_() {
   const projectID = config.service_account.project_id;
 
-  const firestore = google.datastore({
+  const firestore = google.firestore({
     version: "v1",
     auth: new JWT(
       config.service_account.client_email,
@@ -20,69 +20,14 @@ export async function export_(namespaceIDs?: string[]) {
       undefined,
     ),
   });
-  await firestore.projects.export({
+  await firestore.projects.databases.exportDocuments({
+    name: `projects/${projectID}/databases/(default)`,
     requestBody: {
-      outputUrlPrefix: `gs://${projectID}.appspot.com/firestore_backup`,
+      outputUriPrefix: `gs://${projectID}.appspot.com/firestore_backup`,
     },
-    projectId: projectID,
-  });
-
-  await firestore.projects.export({
-    requestBody: {
-      entityFilter: {
-        namespaceIds: namespaceIDs,
-      },
-      outputUrlPrefix: `gs://${projectID}.appspot.com`,
-    },
-    projectId: projectID,
   });
 }
 
-export const export_bigquery = functions.storage
-  .bucket(`${config.service_account.project_id}.appspot.com`)
-  .object()
-  .onFinalize(async (object) => {
-    // 作成されたオブジェクト名
-    const name = object.name!;
-    // 正規表現でFirestoreドキュメントのエクスポートが終わった時に作成されるmetadataかどうかチェック
-    const matched = name.match(/all_namespaces_kind_(.+)\.export_metadata/);
-    if (!matched) {
-      return false;
-    }
-
-    const collectionName = matched[1];
-
-    const projectID = config.service_account.project_id;
-
-    const bigquery = google.bigquery({
-      version: "v2",
-      auth: new JWT(
-        config.service_account.client_email,
-        undefined,
-        config.service_account.private_key.replace(/\\n/g, "\n"),
-        ["https://www.googleapis.com/auth/bigquery"],
-        undefined,
-      ),
-    });
-    await bigquery.jobs.insert({
-      requestBody: {
-        configuration: {
-          load: {
-            destinationTable: {
-              tableId: collectionName,
-              datasetId: "firestore",
-              projectId: projectID,
-            },
-            sourceFormat: "DATASTORE_BACKUP",
-            writeDisposition: "WRITE_TRUNCATE",
-            sourceUris: [`gs://${projectID}.appspot.com/${name}`],
-          },
-        },
-      },
-    });
-
-    return true;
-  });
 
 export const import_ = functions.https.onRequest(async (req, res) => {
   const inputURL = req.query["input_url"];
@@ -91,7 +36,8 @@ export const import_ = functions.https.onRequest(async (req, res) => {
   }
   const projectID = config.service_account.project_id;
 
-  const firestore = new google.datastore_v1.Datastore({
+  const firestore = google.firestore({
+    version: "v1",
     auth: new JWT(
       config.service_account.client_email,
       undefined,
@@ -103,10 +49,10 @@ export const import_ = functions.https.onRequest(async (req, res) => {
       undefined,
     ),
   });
-  await firestore.projects.import({
+  await firestore.projects.databases.importDocuments({
+    name: `projects/${projectID}/databases/(default)`,
     requestBody: {
-      inputUrl: inputURL,
+      inputUriPrefix: inputURL,
     },
-    projectId: projectID,
   });
 });
