@@ -1,36 +1,45 @@
 import * as functions from "firebase-functions";
-import * as google from "googleapis";
+
+import { google } from "googleapis";
 import { JWT } from "google-auth-library";
 import { config } from "../config";
 
-export const export_ = functions.pubsub
-  .schedule("00 0 1 * *")
-  .onRun(async (context) => {
-    const projectID = config.service_account.project_id;
+export async function export_(namespaceIDs?: string[]) {
+  const projectID = config.service_account.project_id;
 
-    const firestore = new google.datastore_v1.Datastore({
-      auth: new JWT(
-        config.service_account.client_email,
-        undefined,
-        config.service_account.private_key,
-        [
-          "https://www.googleapis.com/auth/datastore",
-          "https://www.googleapis.com/auth/cloud-platform",
-        ],
-        undefined,
-      ),
-    });
-    const _ = await firestore.projects.export({
-      requestBody: {
-        entityFilter: { namespaceIds: ["(default)", "exportDocuments"] },
-        outputUrlPrefix: `gs://${projectID}-backups-firestore`,
-      },
-      projectId: projectID,
-    });
+  const firestore = google.datastore({
+    version: "v1",
+    auth: new JWT(
+      config.service_account.client_email,
+      undefined,
+      config.service_account.private_key.replace(/\\n/g, "\n"),
+      [
+        "https://www.googleapis.com/auth/datastore",
+        "https://www.googleapis.com/auth/cloud-platform",
+      ],
+      undefined,
+    ),
+  });
+  await firestore.projects.export({
+    requestBody: {
+      outputUrlPrefix: `gs://${projectID}.appspot.com/firestore_backup`,
+    },
+    projectId: projectID,
   });
 
+  await firestore.projects.export({
+    requestBody: {
+      entityFilter: {
+        namespaceIds: namespaceIDs,
+      },
+      outputUrlPrefix: `gs://${projectID}.appspot.com`,
+    },
+    projectId: projectID,
+  });
+}
+
 export const export_bigquery = functions.storage
-  .bucket(`${config.service_account.project_id}-backups-firestore`)
+  .bucket(`${config.service_account.project_id}.appspot.com`)
   .object()
   .onFinalize(async (object) => {
     // 作成されたオブジェクト名
@@ -45,16 +54,17 @@ export const export_bigquery = functions.storage
 
     const projectID = config.service_account.project_id;
 
-    const bigquery = new google.bigquery_v2.Bigquery({
+    const bigquery = google.bigquery({
+      version: "v2",
       auth: new JWT(
         config.service_account.client_email,
         undefined,
-        config.service_account.private_key,
+        config.service_account.private_key.replace(/\\n/g, "\n"),
         ["https://www.googleapis.com/auth/bigquery"],
         undefined,
       ),
     });
-    const res = await bigquery.jobs.insert({
+    await bigquery.jobs.insert({
       requestBody: {
         configuration: {
           load: {
@@ -65,7 +75,7 @@ export const export_bigquery = functions.storage
             },
             sourceFormat: "DATASTORE_BACKUP",
             writeDisposition: "WRITE_TRUNCATE",
-            sourceUris: [`gs://${projectID}-backups-firestore/${name}`],
+            sourceUris: [`gs://${projectID}.appspot.com/${name}`],
           },
         },
       },
@@ -73,3 +83,30 @@ export const export_bigquery = functions.storage
 
     return true;
   });
+
+export const import_ = functions.https.onRequest(async (req, res) => {
+  const inputURL = req.query["input_url"];
+  if (!inputURL) {
+    throw Error("input_url is required");
+  }
+  const projectID = config.service_account.project_id;
+
+  const firestore = new google.datastore_v1.Datastore({
+    auth: new JWT(
+      config.service_account.client_email,
+      undefined,
+      config.service_account.private_key.replace(/\\n/g, "\n"),
+      [
+        "https://www.googleapis.com/auth/datastore",
+        "https://www.googleapis.com/auth/cloud-platform",
+      ],
+      undefined,
+    ),
+  });
+  await firestore.projects.import({
+    requestBody: {
+      inputUrl: inputURL,
+    },
+    projectId: projectID,
+  });
+});
