@@ -26,7 +26,7 @@
   },
   "scripts": {
     "build": "tsc --build --clean && tsc",
-    "publish": "node bundle && cd dist && npm publish"
+    "bundle-publish": "node bundle && cd dist && npm publish"
   },
   "devDependencies": {
     "typescript": "^3.8.2"
